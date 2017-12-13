@@ -368,11 +368,8 @@ class DataFrameClient(InfluxDBClient):
                                              numeric_precision,
                                              datatype='field')
 
-        def format_line(line):
-            line = line[~line.isnull()]  # drop None entries
-            return ",".join((line.index + '=' + line.values))
-
-        fields = field_df.apply(format_line, axis=1)
+        fields = field_df.apply(lambda s: ',' + s.name + '=' + s)
+        fields = fields.fillna('').sum(axis=1).str[1:]
         del field_df
 
         # Generate line protocol string
